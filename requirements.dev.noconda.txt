@@ -5,9 +5,8 @@ pygments~=2.10
 qrcode[pil]~=6.1
 aiohttp~=3.8.1
 
-aries-cloudagent=0.10.4
-aries-askar=0.2.9
-indy-credx=1.1.0
-indy-vdr=0.4.0
-
-# vim: ft=requirements
+aries-cloudagent==0.10.4
+aries-askar==0.2.9
+indy-credx==1.1.0
+indy-vdr==0.4.0
+# vim:ft=requirements
