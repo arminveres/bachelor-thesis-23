@@ -62,8 +62,8 @@ if RUN_MODE == "docker":
     DEFAULT_EXTERNAL_HOST = DEFAULT_INTERNAL_HOST
     DEFAULT_PYTHON_PATH = "."
 elif RUN_MODE == "pwd":
-    # DEFAULT_INTERNAL_HOST =
     DEFAULT_EXTERNAL_HOST = os.getenv("DOCKERHOST") or "host.docker.internal"
+    DEFAULT_INTERNAL_HOST = DEFAULT_EXTERNAL_HOST
     DEFAULT_PYTHON_PATH = "."
 
 CRED_FORMAT_INDY = "indy"
@@ -171,12 +171,14 @@ class DemoAgent:
         self.log_level = log_level
 
         self.admin_url = f"http://{self.internal_host}:{admin_port}"
-        if AGENT_ENDPOINT:
-            self.endpoint = AGENT_ENDPOINT
-        elif RUN_MODE == "pwd":
-            self.endpoint = f"http://{self.external_host}".replace("{PORT}", str(http_port))
-        else:
-            self.endpoint = f"http://{self.external_host}:{http_port}"
+        # if AGENT_ENDPOINT:
+        #     self.endpoint = AGENT_ENDPOINT
+        # elif RUN_MODE == "pwd":
+        #     self.endpoint = f"http://{self.external_host}".replace(
+        #         "{PORT}", str(http_port)
+        #     )
+        # else:
+        self.endpoint = f"http://{self.external_host}:{http_port}"
 
         self.webhook_port = None
         self.webhook_url = None
@@ -898,12 +900,12 @@ class DemoAgent:
 
     async def listen_webhooks(self, webhook_port: int):
         self.webhook_port = webhook_port
-        if RUN_MODE == "pwd":
-            self.webhook_url = f"http://localhost:{str(webhook_port)}/webhooks"
-        else:
-            self.webhook_url = self.external_webhook_target or (
-                f"http://{self.external_host}:{str(webhook_port)}/webhooks"
-            )
+        # if RUN_MODE == "pwd":
+        #     self.webhook_url = f"http://localhost:{str(webhook_port)}/webhooks"
+        # else:
+        self.webhook_url = self.external_webhook_target or (
+            f"http://{self.external_host}:{str(webhook_port)}/webhooks"
+        )
         app = web.Application()
         app.add_routes(
             [
