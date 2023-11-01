@@ -1,0 +1,25 @@
+#!/bin/env bash
+set -e
+
+function get_zerotier_address {
+    if [[ $# -ne 1 ]]; then
+        echo "only 1 argument allowed, the network name"
+        exit 1
+    fi
+    network=$1
+    sudo zerotier-cli listnetworks | grep "$network" | awk '{print $9}' | sed 's/\/[0-9]*//g'
+}
+
+ZRT_NETWORK=ba-arminveres-23
+WORKSTATION=172.24.101.208
+export DOCKERHOST=$(get_zerotier_address $ZRT_NETWORK) # $(./scripts/getDockerHost.sh)
+export UPDATER_URL="http://$WORKSTATION:8080"
+export LEDGER_URL="http://$WORKSTATION:9000"
+export PUBLIC_TAILS_URL="http://$WORKSTATION:6543"
+export GENESIS_URL="$LEDGER_URL/genesis"
+export POSTGRES=1
+export RUNMODE=pwd
+
+pushd src
+python3 -m agents.node --wallet-type askar --did-exchange --reuse-connections --revocation --ident=node_raspi --port 8000
+popd
