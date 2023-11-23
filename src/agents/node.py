@@ -77,7 +77,6 @@ class NodeAgent(AriesAgent):
         """
         Demonstrative method to provide update to node.
         """
-        # http://172.30.101.208:8080/
         UPDATER_URL = os.getenv("UPDATER_URL") or f"http://{DEFAULT_EXTERNAL_HOST}:8080/"
         async with self.client_session.get(UPDATER_URL) as resp:
             # we are overwriting the existing file as update
@@ -267,7 +266,7 @@ async def main():
                 await register_subnode(agent_container, edge_node_name)
 
             elif option in "xX":
-                sys.exit(0)
+                return
 
             else:
                 log_msg("Unknown option: " + option)
