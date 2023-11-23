@@ -215,7 +215,7 @@ class IssuerAgent(AriesAgent):
 
         await self.db_client.record_key(DB_NAME, node_name, db_entry)
         await self.issue_credential(node_did, node_name, node_cred, DB_NAME)
-        log_time_to_file("update", f"UPDATE: time: {time.perf_counter_ns()}, node: {node_name}\n")
+        log_time_to_file("update", f"UPDATE: time: {time.time_ns()}, node: {node_name}\n")
 
     # =============================================================================================
     # Additional methods
@@ -250,7 +250,7 @@ class IssuerAgent(AriesAgent):
             },
         )
         log_time_to_file(
-            "revocation", f"REVOCATION: time: {time.perf_counter_ns()}, node: {node_name}\n"
+            "revocation", f"REVOCATION: time: {time.time_ns()}, node: {node_name}\n"
         )
 
     async def issue_credential(
@@ -309,7 +309,7 @@ class IssuerAgent(AriesAgent):
             "filter": {"indy": {"cred_def_id": self.cred_def_id}},
         }
         _ = await self.admin_POST("/issue-credential-2.0/send-offer", offer_request)
-        log_time_to_file("issue", f"ISSUING: time: {time.perf_counter_ns()}, node: {node_name}\n")
+        log_time_to_file("issue", f"ISSUING: time: {time.time_ns()}, node: {node_name}\n")
 
     async def onboard_node(self, db_name: str, node_name: str, node_did: str):
         """
