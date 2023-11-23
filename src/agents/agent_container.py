@@ -299,7 +299,7 @@ class AriesAgent(DemoAgent):
             # track last successfully received credential
             self.last_credential_received = cred
             log_time_to_file(
-                "issue", f"CRED_RECEIVED: time: {time.perf_counter_ns()}, node: {self.ident}\n"
+                "issue", f"CRED_RECEIVED: time: {time.time_ns()}, node: {self.ident}\n"
             )
 
         if rev_reg_id and cred_rev_id:

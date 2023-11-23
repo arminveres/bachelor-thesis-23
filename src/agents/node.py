@@ -60,7 +60,7 @@ class NodeAgent(AriesAgent):
         """
 
         log_time_to_file(
-            "revocation", f"REV_RECEIVED: time: {time.perf_counter_ns()}, node: {self.ident}\n"
+            "revocation", f"REV_RECEIVED: time: {time.time_ns()}, node: {self.ident}\n"
         )
 
         if self.log_level == LogLevel.DEBUG:
