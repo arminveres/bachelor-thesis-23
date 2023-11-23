@@ -2,24 +2,31 @@
 set -e
 
 function get_zerotier_address {
-    if [[ $# -ne 1 ]]; then
-        echo "only 1 argument allowed, the network name"
-        exit 1
-    fi
-    network=$1
-    sudo zerotier-cli listnetworks | grep "$network" | awk '{print $9}' | sed 's/\/[0-9]*//g'
+	if [[ $# -ne 1 ]]; then
+		echo "only 1 argument allowed, the network name"
+		exit 1
+	fi
+	network=$1
+	sudo zerotier-cli listnetworks | grep "$network" | awk '{print $9}' | sed 's/\/[0-9]*//g'
 }
 
 ZRT_NETWORK=ba-arminveres-23
 WORKSTATION=172.24.101.208
 export DOCKERHOST=$(get_zerotier_address $ZRT_NETWORK) # $(./scripts/getDockerHost.sh)
 export UPDATER_URL="http://$WORKSTATION:8080"
-export LEDGER_URL="http://$WORKSTATION:9000"
 export PUBLIC_TAILS_URL="http://$WORKSTATION:6543"
+export LEDGER_URL="http://$WORKSTATION:9000"
 export GENESIS_URL="$LEDGER_URL/genesis"
 export POSTGRES=1
 export RUNMODE=pwd
 
+NODE_NAME=node_raspi
+
+cp ./_updating/_old_file.py ./src/shady_stuff.py
+mkdir -p src/.agent_cache
+
 pushd src
-python3 -m agents.node --wallet-type askar --did-exchange --reuse-connections --revocation --ident=node_raspi --port 8000
+python3 -m agents.node --wallet-type askar --did-exchange --reuse-connections --revocation --ident $NODE_NAME --port 8000
 popd
+
+rm ./src/shady_stuff.py
