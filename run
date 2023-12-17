@@ -50,8 +50,8 @@ BACKGROUND=0
 # Docker specific variables
 RUN_MODE="docker"
 # DOCKERHOST=$(./scripts/getDockerHost.sh)
-# DOCKERHOST=172.30.101.208
-DOCKERHOST=172.24.136.53
+DOCKERHOST=172.24.101.208
+# DOCKERHOST=172.24.136.53
 DOCKER_NETWORK="bridge" # bridge or host
 # Aries/Indy specific variables
 LEDGER_URL="http://$DOCKERHOST:9000"
