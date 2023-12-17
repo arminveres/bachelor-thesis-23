@@ -27,7 +27,7 @@ EOF
 cmd=$1
 option=$2
 # export DOCKERHOST=172.30.101.208
-export DOCKERHOST=172.24.136.53
+# export DOCKERHOST=172.24.136.53
 
 if [[ -n $option && $option != 'node' ]]; then
     echo "Unknown sub-option $option"
