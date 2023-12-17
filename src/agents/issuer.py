@@ -239,7 +239,9 @@ class IssuerAgent(AriesAgent):
         await self.db_client.record_key(db_name, node_name, response)
 
         # FIXME: (aver) remove hard coded connection_id and retrieve or store in database
+        # FIXME: (aver) connection_id is unset, if Maintainer is restarted, therefore no error
         # TODO: (aver) fix for offline devices
+
         await self.admin_POST(
             "/revocation/revoke",
             {
