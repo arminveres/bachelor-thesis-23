@@ -1,21 +1,15 @@
 #!/bin/env bash
 set -e
 
-function get_zerotier_address {
-	if [[ $# -ne 1 ]]; then
-		echo "only 1 argument allowed, the network name"
-		exit 1
-	fi
-	network=$1
-	sudo zerotier-cli listnetworks | grep "$network" | awk '{print $9}' | sed 's/\/[0-9]*//g'
-}
-
 ZRT_NETWORK=ba-arminveres-23
+
+# TODO: (aver) find a better way to handle this
 # Home Workstation ip address
-# WORKSTATION=172.24.101.208
+WORKSTATION=172.24.101.208
 # Laptop ip address
-WORKSTATION=172.24.136.53
-export DOCKERHOST=$(get_zerotier_address $ZRT_NETWORK) # $(./scripts/getDockerHost.sh)
+# WORKSTATION=172.24.136.53
+
+export DOCKERHOST=$(./scripts/get_zerotier_addr.sh $ZRT_NETWORK)
 export UPDATER_URL="http://$WORKSTATION:8080"
 export PUBLIC_TAILS_URL="http://$WORKSTATION:6543"
 export LEDGER_URL="http://$WORKSTATION:9000"
