@@ -322,8 +322,7 @@ class OrionDB:
         }
         signature = self.__sign_tx(payload)
         response = await self.__client_session.get(
-            url=f"{self.__orion_db_url}/data/{db_name}\
-                  ?startkey={enc_start_key}&endkey={enc_end_key}&limit={limit}",
+            url=f"{self.__orion_db_url}/data/{db_name}?startkey={enc_start_key}&endkey={enc_end_key}&limit={limit}",
             headers={"UserID": self.__username, "Signature": signature},
         )
 
