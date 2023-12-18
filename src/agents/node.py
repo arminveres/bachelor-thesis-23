@@ -94,7 +94,10 @@ class NodeAgent(AriesAgent):
             new = shady_stuff.version()
             self.log(new)
             if not old["version"] < new["version"]:
-                raise Exception("shutdown, wrong update delivered.")
+                if self.log == LogLevel.PERF:
+                    raise Exception("shutdown, wrong update delivered.")
+                elif self.log == LogLevel.DEBUG:
+                    log_msg("shutdown, wrong update delivered.")
             diff = {
                 "old": {"components": {"software": {"shady_stuff": old["version"]}}},
                 "new": {"components": {"software": {"shady_stuff": new["version"]}}},
