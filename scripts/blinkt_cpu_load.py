@@ -31,5 +31,16 @@ blinkt.set_brightness(0.1)
 
 while True:
     v = psutil.cpu_percent() / 100.0
-    show_graph(v, 255, 255, 255)
-    time.sleep(0.01)
+    if v <= .25:
+        # green
+        show_graph(v, 0, 255, 0)
+    elif v > .25 and v <= .5:
+        # yellow
+        show_graph(v, 255, 191, 0)
+    elif v > .5 and v <= .75:
+        # orange
+        show_graph(v, 255, 136, 0)
+    elif v > .75:
+        # red
+        show_graph(v, 255, 0, 0)
+    time.sleep(0.5)
