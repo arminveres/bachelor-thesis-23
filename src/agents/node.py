@@ -130,21 +130,25 @@ class NodeAgent(AriesAgent):
         # response = await response.json()
         # log_json(response)
 
+    async def _update_to_newest_cred(self):
+        # always get the most up to date credential
+        response = await self.admin_GET("/credentials")
+        res = response["results"]
+        if len(res) == 0:
+            self.log("No existing credential.")
+            return
+        newest_cred = max(res, key=lambda x: int(x["cred_rev_id"]))
+        self.cred_id = newest_cred["referent"]
+        return newest_cred
+
     async def get_credential_state(self):
         """
         Prints and returns the current credential state (true if revoked, or false for valid)
         """
-        if self.cred_id is None:
-            response = await self.admin_GET("/credentials")
-            res = response["results"]
-            if len(res) == 0:
-                self.log("No existing credential.")
-                return
-            self.cred_id = max(res, key=lambda x: int(x["cred_rev_id"]))["referent"]
-
+        cred = await self._update_to_newest_cred()
         self.log("The following credential:")
-        response = await self.admin_GET(f"/credential/{self.cred_id}")
-        log_json(response)
+        # response = await self.admin_GET(f"/credential/{self.cred_id}")
+        log_json(cred)
         self.log("Status:")
         response = await self.admin_GET(f"/credential/revoked/{self.cred_id}")
         log_json(response)
