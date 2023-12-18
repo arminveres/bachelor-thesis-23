@@ -230,30 +230,65 @@ class IssuerAgent(AriesAgent):
         """
         Revoke a credentials and publish it.
         """
+        # we hereby fix, if restarted Maintainer, or generally disconnected devices
+        if self.db_client.db_keys[db_name][node_name].get("connection_id") is None:
+            await self.establish_connection(db_name, node_name)
+
         response = await self.db_client.query_key(db_name, node_name)
         cred_ex_id = response.get("cred_ex_id")
 
-        # update database with removed credential id
-        response["cred_ex_id"] = ""
-        response["valid"] = False
-        await self.db_client.record_key(db_name, node_name, response)
+        if cred_ex_id is None:
+            raise Exception("Cred Ex must not be None, major error happened.")
 
-        # FIXME: (aver) remove hard coded connection_id and retrieve or store in database
-        # FIXME: (aver) connection_id is unset, if Maintainer is restarted, therefore no error
         # TODO: (aver) fix for offline devices
+        # currently aiohttp tries for an indefinite time and as soon as it could connect it updates
+        # the device!
+        try:
+            await self.admin_POST(
+                "/revocation/revoke",
+                {
+                    "cred_ex_id": cred_ex_id,
+                    "publish": True,
+                    "connection_id": self.db_client.db_keys[db_name][node_name]["connection_id"],
+                    "comment": json.dumps(revocation_reason),
+                },
+            )
+            log_time_to_file(
+                "revocation", f"REVOCATION: time: {time.time_ns()}, node: {node_name}\n"
+            )
+            # update database with removed credential id, only after successful revocation
+            response["cred_ex_id"] = ""
+            response["valid"] = False
+            await self.db_client.record_key(db_name, node_name, response)
+        except KeyError as e:
+            log_status(f"ERROR: Key {e} not found, device assumed to offline")
+            return
 
-        await self.admin_POST(
-            "/revocation/revoke",
-            {
-                "cred_ex_id": cred_ex_id,
-                "publish": True,
-                "connection_id": self.db_client.db_keys[db_name][node_name]["connection_id"],
-                "comment": json.dumps(revocation_reason),
-            },
+    async def establish_connection(self, db_name, node_name):
+        """
+        Establishes connection to a node and stores the connection id in the local database and
+        returns it as well
+        """
+        recipient_key = await self.send_invitation(
+            self.db_client.db_keys[db_name][node_name]["controller_did"]
         )
-        log_time_to_file(
-            "revocation", f"REVOCATION: time: {time.time_ns()}, node: {node_name}\n"
-        )
+        self.db_client.db_keys[db_name][node_name]["recipient_key"] = recipient_key
+        self._connection_ready = asyncio.Future()
+        if self.log_level == LogLevel.DEBUG:
+            log_msg("Waiting for connection...")
+        await self.detect_connection()
+        # Set the connection id for each controller
+        response = await self.admin_GET("/connections")
+        if self.log_level == LogLevel.DEBUG:
+            log_json(response)
+        for conn in response["results"]:
+            if conn["invitation_key"] == recipient_key:
+                conn_id = conn["connection_id"]
+                self.db_client.db_keys[db_name][node_name]["connection_id"] = conn_id
+                # remove recipient/invitation key
+                self.db_client.db_keys[db_name][node_name].pop("recipient_key")
+        self.reset_connection()
+        return conn_id
 
     async def issue_credential(
         self,
@@ -270,30 +305,7 @@ class IssuerAgent(AriesAgent):
             node_cred: credential to be issued
             domain: databse name where it will be stored
         """
-        recipient_key = await self.send_invitation(node_did)
-        # we set the recipient key for later identification
-        self.db_client.db_keys[db_name][node_name]["recipient_key"] = recipient_key
-
-        self._connection_ready = asyncio.Future()
-        if self.log_level == LogLevel.DEBUG:
-            log_msg("Waiting for connection...")
-        await self.detect_connection()
-
-        # Set the connection id for each controller
-        response = await self.admin_GET("/connections")
-        if self.log_level == LogLevel.DEBUG:
-            log_json(response)
-
-        # TODO: (aver) remove hardcoded key_name and add logic for general key check
-        # also remove hardcoded connection_id
-        for conn in response["results"]:
-            if conn["invitation_key"] == recipient_key:
-                conn_id = conn["connection_id"]
-                self.db_client.db_keys[db_name][node_name]["connection_id"] = conn_id
-                # remove recipient/invitation key
-                self.db_client.db_keys[db_name][node_name].pop("recipient_key")
-
-        self.reset_connection()
+        conn_id = await self.establish_connection(db_name, node_name)
 
         if self.log_level == LogLevel.INFO or LogLevel.DEBUG:
             log_status(f"# Issuing credential offer to {node_name}")
@@ -524,7 +536,6 @@ async def main():
             #     if not prompt_options.get("setup_db"):
             #         log_msg(f"invalid option, {option}")
             #         continue
-
             #     await setup_database(agent_container, DB_NAME)
             #     prompt_options.pop("setup_db")
             #     # add onboarding option and update order by values

@@ -147,7 +147,6 @@ class NodeAgent(AriesAgent):
         """
         cred = await self._update_to_newest_cred()
         self.log("The following credential:")
-        # response = await self.admin_GET(f"/credential/{self.cred_id}")
         log_json(cred)
         self.log("Status:")
         response = await self.admin_GET(f"/credential/revoked/{self.cred_id}")
