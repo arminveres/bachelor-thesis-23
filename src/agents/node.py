@@ -140,7 +140,7 @@ class NodeAgent(AriesAgent):
             if len(res) == 0:
                 self.log("No existing credential.")
                 return
-            self.cred_id = res[-1]["referent"]
+            self.cred_id = max(res, key=lambda x: int(x["cred_rev_id"]))["referent"]
 
         self.log("The following credential:")
         response = await self.admin_GET(f"/credential/{self.cred_id}")
