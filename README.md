@@ -8,7 +8,30 @@ This thesis developed a lifecycle encompassing framework by relying on decentral
 management and configuration and management database (CMDB), based on Hyperledger Aries and
 Hyperledger Orion.
 
-<!-- ## Abstract -->
+## Abstract
+
+The daily increase in deployed Internet of Things (IoT) devices and the advent of 5th-generation networking technology
+has led to a massive surge in information exchange.
+Enhanced connectivity and the adoption of IoT trigger cyber attacks, which are increasingly sophisticated and affect
+many IoT-related infrastructures, raising security concerns.
+
+While research and frameworks for managing IoT lifecycles exist, they often share a common drawback: centralization,
+_i.e._, a centralized point of failure can prove fatal from a security viewpoint.
+Few studies have looked into deploying decentralization and distributed ledger technology (DLT) for managing IoT lifecycles.
+
+This thesis provides a feasibility check for developing a lifecycle and identity-managing framework for IoT devices,
+boasting decentralization and modularity and enabling decentralized information sharing.
+
+First, we extensively researched concepts, frameworks, and tools that could enable the decentralization of identity and
+lifecycle management for IoT devices.
+Subsequently, we designed a framework that covers all the aforementioned specified requirements.
+We then implemented the design and evaluated it against security and performance concerns.
+
+The proposed framework utilizes a mixture of Hyperledger Aries for decentral identity management and Hyperledger Orion
+for centralized but DLT-based information sharing. The performance evaluation was promising, indicating only a linear
+increase with increasing nodes.
+This combination allows a well-rounded and moderate interaction between IoT devices, ensuring security and access
+control and providing opportunity for future extension.
 
 <!-- ## Challenges -->
 
